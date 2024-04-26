@@ -1,46 +1,40 @@
-import customtkinter
+import tkinter as tk
+import customtkinter as CTk
 import statsapi
 import datetime
 import time
-    
+gamepk=None
 date = datetime.datetime.now().strftime("%m/%d/%Y")
-astros_schedule = statsapi.schedule(team=117,start_date=date,end_date=date)
-gamepk = astros_schedule[0]['game_id']
-astros_linescore = statsapi.linescore(gamePk=gamepk)
+astros_schedule = statsapi.schedule(date=date, team="117", sportId=1)
+for i in range(len(astros_schedule)):
+    gamepk = astros_schedule[i]['game_id']
+    astros_linescore = statsapi.linescore(gamePk=gamepk)
+else:
+    astros_linescore = "No game today check back later"
 
-customtkinter.set_appearance_mode("Dark")
-customtkinter.set_default_color_theme("dark-blue")
+class Window:
+    def __init__(self, parent):
+       self.parent = parent
+       self.label = CTk.CTkTextbox(parent,state="disabled",border_width=10,corner_radius=20, font=("Courier",14))
+       self.label.pack(expand=True, fill='both')
+       self.update()
+ 
+    def update(self):
+        self.label.configure(state="normal")
+        self.label.delete("0.0", "end")
+        self.label.insert("0.0", astros_linescore)
+        self.label.configure(state="disabled")
+        self.parent.after(1000, self.update)
+ 
+if __name__ == '__main__':
 
 
-app = customtkinter.CTk()
-app.title("Astros Score Manual")
-app.grid_columnconfigure(0, weight=1)
-app.geometry("675x325")
-switch_var = customtkinter.StringVar(value="off")
 
-def switch_event():
-    onoff = switch_var.get()
-    if onoff == "off":
-        Textbox.configure(state="normal")
-        Textbox.delete("0.0","end")
-        Textbox.configure(state="disabled")
-    if onoff == "on":
-        Textbox.configure(state="normal")
-        Textbox.delete("0.0","end")
-        Textbox.insert("0.0",astros_linescore)
-        Textbox.configure(state="disabled")
-        print("1")
-        app.after(10000, switch_event)
-
-Switch = customtkinter.CTkSwitch(master=app, text="Check the astros score (live)", command=switch_event,
-                                   variable=switch_var, onvalue="on", offvalue="off")
-Switch.pack(padx=20, pady=10)
-
-Textbox = customtkinter.CTkTextbox(master=app,width=650,height=300, corner_radius=20, border_width=5, activate_scrollbars = False, state="disabled",font=("Courier",14), wrap="none")
-Textbox.pack(padx=20, pady=10)
+    root = CTk.CTk()
+    root.geometry('650x300')
+    Window(root)
 
 
 
 
-app.after(10000, switch_event)
-app.mainloop()
+    root.mainloop()
